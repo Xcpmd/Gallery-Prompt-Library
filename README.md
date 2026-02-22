@@ -82,12 +82,14 @@ Gallery-Prompt-Library
 └── ...
 ```
 
+## 提示词来源: 
+   - [prompt-library](https://github.com/gaowanliang/prompt-library)
+
 ## 注意事项
 
 - 本项目为个人学习作品，作者为高二学生，前端水平有限，欢迎友好指教。
 - 除 `search.py` 及个别算法外，其余代码均为手动编写，未使用 AI 生成。
 - 当前版本**未做输入验证**，请勿使用 / : \* ? " < > | 等字符作为分类id
 
-## 开源协议
-
-[MIT LICENSE](https://mit-license.org/)
+---
+[Copyright](./LICENSE)  (c) 2026 Xcpmd

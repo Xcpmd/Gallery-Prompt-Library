@@ -1,4 +1,3 @@
-from sys import int_info
 import flask
 from flask import render_template, request
 import json, os
@@ -6,6 +5,13 @@ from search import search
 from utils import time
 import argparse
 import webbrowser as web
+
+from threading import Timer
+class RepeatingTimer(Timer):
+   def run(self):
+       while not self.finished.is_set():
+           self.function(*self.args, **self.kwargs)
+           self.finished.wait(self.interval)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--debug", action="store_true", help="开启调试")
@@ -18,6 +24,7 @@ ENABLE_BACKUP = args.backup
 base_path = os.path.dirname(__file__).replace("\\", '/')
 prompt_path = os.path.join(base_path, "prompts")
 temp_path = os.path.join(prompt_path, "temp")
+works_path = os.path.join(prompt_path, "works")
 recycle_path = os.path.join(prompt_path, "recycle")
 
 all_prompt = {
@@ -70,6 +77,13 @@ def backup():
 
 def save(backUp=False):
     if backUp: backup()
+    files = load_catgories()
+    keys = data_global.keys()
+    for file in files:
+        if not file in keys:
+            p = os.path.join(prompt_path, f"{file}.json")
+            ap = os.path.join(recycle_path, f"{file}.json")
+            shutil.move(p, ap)
     for ID, content in data_global.items():
         temp = content.copy()
         temp['id'] = ID
@@ -79,7 +93,7 @@ def save(backUp=False):
     print("Saved")
 
 app = flask.Flask(__name__)
-host = "127.0.0.1"
+host = "localhost"
 port = 4321
 
 #主页面
@@ -107,7 +121,10 @@ def getCategories() -> list[str]:
     result = []
     for i, j in data_global.items():
         n = 'nsfw' in j.keys()
-        if not isNSFW and n: continue
+        m = False
+        if n:
+            m = j['nsfw']
+        if not isNSFW and m: continue
         result.append((i, j['name']))
     return result
 
@@ -137,65 +154,62 @@ def getCategory(category) -> str:
 #   提示词编辑api
 ############################
 
-recycle_path = 'prompts/recycle'
-
 # 添加/移除 分类
 @app.route('/editCategory')
 def editCategory():
     ID = request.args.get('id', '') # id
     option_type = request.args.get('type', '') # 操作类型
-    if ID:
-        name = request.args.get("name", ID) # 翻译
-        match option_type:
-            case "add":
-                # 如果存在则跳过
-                if ID in data_global.keys():
-                    return f"{ID}已存在%normal"
-                data_global[ID] = {
-                    "name": name,
-                    "nsfw": False,
-                    "content": {
-                        "normal": {
-                            "default": []
-                        },
-                        "r18": {}
-                    }
+    name = request.args.get("name", ID) # 翻译
+    match option_type:
+        case "add":
+            # 如果存在则跳过
+            if ID in data_global.keys():
+                return f"{ID}已存在%normal"
+            data_global[ID] = {
+                "name": name,
+                "nsfw": False,
+                "content": {
+                    "normal": {
+                        "default": []
+                    },
+                    "r18": {}
                 }
-                save()
-                return f"{ID}已创建%good"
-            case "edit":
-                fromID = request.args.get("fromId", "") # 获取原id
-                # if ID in data_global.keys():
-                #     return f"{ID}已存在-normal"
-                if fromID in data_global.keys():
-                    if ID == fromID:
-                        # 重命名
-                        data_global[ID]["name"] = name
-                    else:
-                        if ID in data_global.keys():
-                            return f"{ID}已存在%normal"
-                        # 缓存当前内容
-                        temp = data_global[fromID]
-                        # 移除原有内容
-                        del data_global[fromID]
-                        # 重命名
-                        temp["name"] = name
-                        # 添加内容/ 清除缓存
-                        data_global[ID] = temp
-                        del temp
-                    print(data_global.keys())
-                    save(ENABLE_BACKUP)
-                    return f"已将{fromID}重命名为{name}"
-                else: return f'不存在{fromID}'
-            case "remove":
-                # 如果存在则移移除
-                if ID in data_global.keys():
-                    # 移除
-                    del data_global[ID]
-                    save(ENABLE_BACKUP)
-                    return f"{ID}移除失败%bad" if ID in data_global.keys() else f"{ID}已移除%good"
-                else: return ""
-    else: return f"无效数据%bad"
+            }
+            # print(data_global.keys())
+            save()
+            return f"{ID}已创建%good"
+        case "edit":
+            fromID = request.args.get("fromId", "") # 获取原id
+            # if ID in data_global.keys():
+            #     return f"{ID}已存在-normal"
+            if fromID in data_global.keys():
+                if ID == fromID:
+                    # 重命名
+                    data_global[ID]["name"] = name
+                else:
+                    if ID in data_global.keys():
+                        return f"{ID}已存在%normal"
+                    # 缓存当前内容
+                    temp = data_global[fromID]
+                    # 移除原有内容
+                    del data_global[fromID]
+                    # 重命名
+                    temp["name"] = name
+                    # 添加内容/ 清除缓存
+                    data_global[ID] = temp
+                    del temp
+                # print(data_global.keys())
+                save(ENABLE_BACKUP)
+                return f"已将{fromID}重命名为{name}"
+            else: return f'不存在{fromID}'
+        case "remove":
+            # 如果存在则移移除
+            if ID in data_global.keys():
+                # 移除
+                del data_global[ID]
+                save(ENABLE_BACKUP)
+                return f"{name}移除失败%bad" if ID in data_global.keys() else f"{name}已移除%good"
+            else: return ""
 
 # 添加子分类
 @app.route(r"/editChildCategory/<category>")
@@ -234,15 +248,29 @@ def editChildCategory(category):
             return f"已将{fromName}重命名为{name}"
         case "remove":
             # 如果存在则移移除
-            if name in list(data_global[category]["content"]['normal'].keys()) + list(data_global[category]["content"]['r18'].keys()):
+            haskey = []
+            nn = data_global[category]["content"].get('normal')
+            rr = data_global[category]["content"].get('r18')
+            if nn:
+                haskey += nn.keys()
+            if rr:
+                haskey += rr.keys()
+            if name in haskey:
                 # 移除
                 try:
                     del data_global[category]["content"]['normal'][name]
                     del data_global[category]["content"]['r18'][name]
                 except: pass
                 save(ENABLE_BACKUP)
-                has = name in data_global[category]["content"]["normal"].keys() or name in data_global[category]["content"]["r18"].keys()
-                return f"{name}移除失败%bad" if has else f"{name}已移除%good"
+                # 验证
+                haskey = []
+                nn = data_global[category]["content"].get('normal')
+                rr = data_global[category]["content"].get('r18')
+                if nn:
+                    haskey += nn.keys()
+                if rr:
+                    haskey += rr.keys()
+                return f"{name}移除失败%bad" if name in haskey else f"{name}已移除%good"
             else: return ""
 
 # 添加提示词
@@ -346,10 +374,17 @@ def getSearch(value) -> str:
     print(result)
     return json.dumps(result, ensure_ascii=False)
 
+AUTO_SAVE = RepeatingTimer(60, save)
+
 if __name__ == "__main__":
+    # 加载提示词
     reload()
     update_prompt()
-    # save()
+
+    # 自动保存
+    # AUTO_SAVE.start()
+    ENABLE_DEBUG = True
     web.open(f"http://{host}:{port}")
     app.run(host, port, debug=ENABLE_DEBUG)
+    # AUTO_SAVE.cancel()
     # save(1)

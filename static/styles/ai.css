@@ -22,7 +22,7 @@
   font-family:
     "CeraRoundPro", "shark", "Inter", "PingFang SC", "Microsoft YaHei",
     sans-serif;
-  scrollbar-width: thin;
+  scrollbar-width: none;
   scrollbar-color: rgba(100, 100, 100, 0.4) transparent;
   scroll-behavior: smooth;
   transition: all 0.3s;
@@ -221,6 +221,11 @@ body {
   background-color: rgba(255, 151, 151, 0.6);
 }
 
+.message-container.warn {
+  border: 1px solid rgba(245, 255, 57, 0.85);
+  background-color: rgba(255, 252, 77, 0.456);
+}
+
 .message-container.fade-in {
   max-height: 80px;
   transform: translateX(0);
@@ -312,6 +317,7 @@ body {
 
 /* 分类卡片 */
 .category-card {
+    scrollbar-width: thin;
   flex: 2;
 }
 
@@ -359,11 +365,13 @@ hr {
 /* 提示词卡片 */
 .prompt-card {
   flex: 5;
+  scrollbar-width: thin;
 }
 
 /* 购物车卡片 */
 .cart-card {
   flex: 2;
+    scrollbar-width: thin;
 }
 
 /* 分类选项样式优化 */
@@ -472,7 +480,7 @@ hr {
 }
 
 .category-inner.active {
-  max-height: 1024px;
+  max-height: 2048px;
 }
 
 .category-key {

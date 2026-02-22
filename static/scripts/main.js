@@ -338,25 +338,25 @@ function copy(btn) {
   });
   result = result.join(", ");
   let content = underline ? result.replace(/_/g, " ") : result;
-
-  navigator.clipboard.writeText(content);
-
+  
   if (result) {
+    navigator.clipboard.writeText(content);
+    createMessage("已复制到剪切板", 3, "good");
     showerContent.classList.remove("active");
     setTimeout(() => {
       resultShower.innerText = content;
       showerContent.classList.add("active");
     }, 300)
   }else{
-    createMessage("空内容", 3)
+    createMessage("空内容", 3);
   }
   console.log(content);
 }
 
-var warnAtt = {
-  positive: false,
-  negative: false,
-};
+var CartClearId = {
+  "positive": null,
+  "negative": null
+}
 
 //清空购物车
 function clearCart(btn) {
@@ -364,21 +364,38 @@ function clearCart(btn) {
     btn.parentElement.parentElement.parentElement.querySelector(".cart");
   let type = btn.getAttribute("name");
   reloadCeil();
+  // let id = null;
 
-  if (!warnAtt[type]) {
-    btn.classList.add("active");
-    warnAtt[type] = true;
-    id = setTimeout(() => {
-      warnAtt[type] = false;
-      btn.classList.remove("active");
-    }, 5000);
-  } else {
+  if (btn.classList.contains("active")) {
+    createMessage("已清空购物车");
     btn.classList.remove("active");
+    clearTimeout(CartClearId[type]);
+    CartClearId[type] = null;
     Array.from(element.children).map((card) => {
       removePrompt(card.querySelector(".prompt-ceil-rm-btn"));
     });
-    warnAtt[type] = false;
+  }else{
+    createMessage("确认清空购物车吗?", 5, "warn");
+    btn.classList.add("active");
+    CartClearId[type] = setTimeout(() => {
+      btn.classList.remove("active");
+    }, 5000);
   }
+
+  // if (!warnAtt[type]) {
+  //   btn.classList.add("active");
+  //   warnAtt[type] = true;
+  //   id = setTimeout(() => {
+  //     warnAtt[type] = false;
+  //     btn.classList.remove("active");
+  //   }, 5000);
+  // } else {
+  //   btn.classList.remove("active");
+  //   Array.from(element.children).map((card) => {
+  //     removePrompt(card.querySelector(".prompt-ceil-rm-btn"));
+  //   });
+  //   warnAtt[type] = false;
+  // }
 }
 
 //从购物车移除单个prompt
@@ -403,10 +420,12 @@ function switchNsfw(element) {
   if (nsfw) {
     btnIcon.remove("fa-ban");
     btnIcon.add("fa-check");
+    element.setAttribute("title", "新世界!!!")
     createMessage("新世界!", 3, "good")
   } else {
     btnIcon.remove("fa-check");
     btnIcon.add("fa-ban");
+    element.setAttribute("title", "???")
   }
 
   reflash(true);
@@ -523,8 +542,9 @@ async function createMessage(text, time=5, level="normal") {
   messageIndex++;
   // 默认图标 (i)
   let icon = '<i class="fa-solid fa-circle-info"></i>';
-  if (text.length > 16) {
-    text.slice(0,15)
+  // 处理长信息
+  if (text.length > 24) {
+    text = text.slice(0,15)
     text += "..."
   }
 
@@ -537,6 +557,8 @@ async function createMessage(text, time=5, level="normal") {
       // (√)
       icon = '<i class="fa-solid fa-circle-check"></i>';
       break;
+    case "warn":
+      icon = '<i class="fa-solid fa-triangle-exclamation"></i>'
   }
 
   let template = /* html */ `
@@ -705,6 +727,7 @@ function popUpSubmit(remove=false) {
 async function addCategorySubmit(data) {
   const id = data["ID"];
   const name = data["翻译"];
+  console.log(id, name)
 
   if (!id || !name) {
     createMessage("内容不能为空", 5, "bad");
@@ -713,9 +736,9 @@ async function addCategorySubmit(data) {
 
   const url = '/editCategory';
   const params ={
-    "id": id,
-    "name": name,
-    "type" : "add",
+    id: id,
+    name: name,
+    type : "add",
   };
   
   const response = await (await fetch(u(url, params))).text()
@@ -735,11 +758,13 @@ async function addCategory() {
 
 async function removeCategorySubmit(data) {
   const fromId = data["fromid"];
+  const fromName = data['fromName'];
 
   console.log(fromId)
   const url = '/editCategory'
   const params = {
     id: fromId,
+    name: fromName,
     type: "remove",
   }
 
@@ -780,7 +805,7 @@ async function editCategory(event, self) {
   const id = idAndZh[0];
   const name = idAndZh[1];
 
-  const content = addTextBox("ID", id) + addTextBox("翻译", name) + addInfo("fromid", id);
+  const content = addTextBox("ID", id) + addTextBox("翻译", name) + addInfo("fromid", id) + addInfo("fromName", name);
   addPopUpWindow(content, editCategorySubmit, `修改${name}`, '<i class="fa-solid fa-pen-to-square"></i>', removeCategorySubmit)
 }
 
@@ -1003,7 +1028,7 @@ async function init() {
     }, 2000),
   );
   
-  setInterval(getStatus, 1000);
+  // setInterval(getStatus, 1000);
   createMessage("左/右 键提示词卡片以添加至 正/负 购物车")
 }
 
