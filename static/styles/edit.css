@@ -1,0 +1,167 @@
+.pop-up {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    opacity: 0;
+    background-color: rgba(100, 100, 100, 0.2);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.3s linear 50ms;
+}
+
+.pop-up.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.pop-up-box {
+    min-width: 512px;
+    min-height: 256px;
+    padding: 1rem;
+    opacity: 0;
+    transform: translateY(80px) scale(0.8);
+    filter: blur(16px);
+    display: flex;
+    flex-direction: column;
+}
+
+.pop-up-box.fade-in {
+    opacity: 1;
+    filter: none;
+    transform: translateY(0) scale(1);
+}
+
+.pop-up-bar {
+    height: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pop-up-title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 4px;
+}
+
+.icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+.icon.close-btn {
+    transform: rotate(90deg);
+}
+
+.icon.close-btn:hover {
+    transform: rotate(0);
+    font-size: 1.3rem;
+}
+
+.icon.close-btn:active {
+    transform: scale(0.8);
+}
+
+.pop-up-content {
+    padding: 1rem;
+}
+
+.pop-up-input-info {
+    height: 0;
+    width: 0;
+    opacity: 0;
+    margin: 0;
+    padding: 0;
+    z-index: -9999;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.pop-up-submit {
+    position: relative;
+    margin-top: auto;
+    align-items: center;
+    /* justify-items: end; */
+    height: 80px;
+}
+
+.pop-up-submit-btn {
+    position: absolute;
+    height: 50px;
+    width: 90px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 8px;
+    background-color: rgba(100, 148, 237);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+    box-shadow: 2px 2px 4px rgba(100, 100, 100, 0.2);
+    transition: 0.1s;
+    right: 8px;
+    bottom: 8px;
+}
+
+.pop-up-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 6px rgba(100, 100, 100, 0.3);
+}
+
+.pop-up-submit-btn:active {
+    transform: translateY(-1px) scale(0.9);
+    box-shadow: 3px 3px 5px rgba(100, 100, 100, 0.25);
+}
+
+.pop-up-remove-btn {
+    position: absolute;
+    margin: auto 0;
+    height: 40px; 
+    width: 40px;
+    left: 8px;
+    bottom: 8px;
+}
+
+/* 模板内容 */
+
+.pop-up-text-box {
+    width: auto;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 8px;
+    gap: 4px;
+}
+
+.pop-up-input-box {
+    border: 2px solid rgba(200, 200, 200, 0.8);
+    outline: none;
+    min-height: 40px;
+    border-radius: 8px;
+    padding: 0.5rem;
+    transition: 0.2s;
+    background-color: white;
+}
+
+.pop-up-input-box:focus {
+    border: 3px solid rgba(150, 150, 150, 0.8);
+}
+
+.pop-up-checkbox-box {
+    width: auto;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: start;
+    margin: 8px;
+    gap: 4px;
+}

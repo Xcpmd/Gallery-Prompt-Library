@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>gallery prompt</title>
+        <!-- 导入基础样式 -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/ai.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/edit.css')}}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles/all.min.css')}}">
+        <script src="{{url_for('static', filename='scripts/main.js')}}"></script>
+    </head>
+    <body>
+        <!-- 弹窗页面 -->
+        <div id="pop-up" class="pop-up"></div>
+
+        <!-- 背景 -->
+        <div class="bg-page">
+
+            <!-- 导航栏 -->
+            <div class="card navbar">
+                <p style="user-select: none;">gallery prompt</p>
+                <!-- 搜索栏 -->
+                <div class="search-box">
+                    <div class="search-icon">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input id="search-box" class="search-content" placeholder="键入以搜索....">
+                </div>
+                <!-- 状态栏 -->
+                <div style="display: flex;">
+                    <div id="connect-status" class="status well" title="连接良好">
+                        <i class="fa-solid fa-wifi"></i>
+                    </div>
+                    <div id="btn-nsfw" class="btn-nsfw" onclick="switchNsfw(this)" title="???">
+                        <i class="fa-solid fa-ban"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 信息板 -->
+            <div id="message-box" class="message-box"></div>
+
+            <!-- 主页面 -->
+            <div class="main">
+                <!-- 分类板 -->
+                <div class="card category-card">
+                    <div class="category-bar">
+                        <div class="card-title">
+                            <i class="fa-solid fa-folder-closed"></i>
+                            <h4>分类</h4>
+                        </div>
+                        <div class="add-btn" onclick="addCategory()" title="点击添加分类">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                    <hr>
+                    <div id="categories" style="margin-top: 1rem;"></div>
+                </div>
+
+                <!-- 提示词卡片 -->
+                <div class="card prompt-card">
+                    <div class="category-bar">
+                        <div class="card-title">
+                            <i class="fa-solid fa-tags"></i>
+                            <h4>提示词</h4>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="prompt-option-bar">
+                        <div class="title">
+                            <p id="prompt-load-count" style="opacity: 0.5;">已加载0个prompt</p>
+                        </div>
+                        <div id="prompt-add-btn" class="add-btn" onclick="addPrompt()">
+                            <i class="fa-solid fa-plus"></i>
+                        </div>
+                    </div>
+                    <div id="prompt-search-content" class="prompt-content"></div>
+                    <hr id="divider" class="divider">
+                    <div id="prompt-content" class="prompt-content" data-page="">
+                        <p style="opacity: 0.3; user-select: none">点击左侧选项加载</p>
+                    </div>
+                </div>
+
+                <!-- 购物车 -->
+                <div class="card cart-card">
+                    <div class="category-bar">
+                        <div class="card-title">
+                            <i class="fa-solid fa-cart-arrow-down"></i>
+                            <h4>购物车</h4>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="cart-box" style="margin-top: 1rem;">
+                        <div>
+                            <div class="cart-bar">
+                                <p>正面</p>
+                                <div style="display: flex;justify-content: space-between">
+                                    <div class="copy-btn positive" onclick="copy(this)" title="点击复制内容">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </div>
+                                    <div class="clear-btn positive" name="positive" onclick="clearCart(this)" title="连续点击以清除">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="cart-positive" class="cart"></div>
+                        </div>
+                        <div>
+                            <div class="cart-bar">
+                                <p>负面</p>
+                                <div style="display: flex;justify-content: space-between">
+                                    <div class="copy-btn negative" onclick="copy(this)" title="点击复制内容">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </div>
+                                    <div class="clear-btn negative" name="negative" onclick="clearCart(this)" title="连续点击以清除">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="cart-negative" class="cart"></div>
+                        </div>
+                    </div>
+                    <div id="copy-option">
+                        <div id="underline-option" class="copy-option" title="将 '_' 转换为 空格">
+                            <div class="copy-option-title">
+                                <i class="fa-solid fa-terminal"></i>
+                                <p style="margin-left: 4px; word-wrap:break-word">转换下划线</p>
+                            </div>
+                           <label class="select-box">
+                                <input type="checkbox" id="underline-input" name="underline">
+                                <span class="select-slider"></span>
+                            </label>
+                        </div>
+                        <div id="escape-option" class="copy-option" title="在括号前添加 '\'">
+                            <div class="copy-option-title">
+                                <i class="fa-solid fa-code"></i>
+                                <p style="margin-left: 4px; word-wrap:break-word;">括号转义</p>
+                            </div>
+                            <label class="select-box">
+                                <input type="checkbox" id="escape-input" name="escape">
+                                <span class="select-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="copy-result-shower" class="copy-result-shower">
+                        <div class="copy-result-bar">
+                            <div class="copy-result-icon">
+                                <i class="fa-solid fa-square-poll-horizontal"></i>
+                            </div>
+                            <p>复制结果:</p>
+                        </div>
+                        <div class="copy-result">
+                            <p id="copy-result" class="cart"></p>
+                        </div>
+                    </div>
+                    <div>
+                        <div>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
