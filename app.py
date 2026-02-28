@@ -5,8 +5,9 @@ from search import search
 from utils import time
 import argparse
 import webbrowser as web
-
 from threading import Timer
+from send2trash import send2trash
+
 class RepeatingTimer(Timer):
    def run(self):
        while not self.finished.is_set():
@@ -22,10 +23,10 @@ ENABLE_DEBUG = args.debug
 ENABLE_BACKUP = args.backup
 
 base_path = os.path.dirname(__file__).replace("\\", '/')
-prompt_path = os.path.join(base_path, "prompts")
-temp_path = os.path.join(prompt_path, "temp")
-works_path = os.path.join(prompt_path, "works")
-recycle_path = os.path.join(prompt_path, "recycle")
+prompt_path: str = os.path.join(base_path, "prompts")
+temp_path: str = os.path.join(prompt_path, "temp")
+works_path: str = os.path.join(prompt_path, "works")
+recycle_path: str = os.path.join(prompt_path, "recycle")
 
 all_prompt = {
     "normal": [],
@@ -45,14 +46,15 @@ def load_prompt(category: str) -> dict:
         data_global[category_id] = data
 
 # 加载分类
-def load_catgories(path = prompt_path) -> list[str]:
+def load_catgories(path: str = prompt_path) -> list[str]:
     files = os.listdir(path)
-    categories = [category.split('.')[0] for category in files if os.path.isfile(os.path.join(base_path, path, category))]
+    categories = [category.split('.')[0] for category in files if os.path.isfile(os.path.join(path, category))]
     return categories
 
 def reload():
     global data_global
     data_global = {}
+    load_works()
     [load_prompt(i) for i in load_catgories()]
 
 def update_prompt():
@@ -64,26 +66,13 @@ def update_prompt():
             for prompts in key.values():
                 all_prompt[age] += [(p["en"], p["zh"]) for p in prompts]
 
-
-import shutil
-def backup():
-    time_f = os.path.join(prompt_path, f"backUp/{time()}")
-    if not os.path.exists(time_f):
-        os.makedirs(time_f)
-    for ID in load_catgories():
-        p = os.path.join(prompt_path, f"{ID}.json")
-        ap = os.path.join(time_f, f"{ID}.json")
-        shutil.move(p, ap)
-
-def save(backUp=False):
-    if backUp: backup()
+def save():
     files = load_catgories()
     keys = data_global.keys()
     for file in files:
         if not file in keys:
-            p = os.path.join(prompt_path, f"{file}.json")
-            ap = os.path.join(recycle_path, f"{file}.json")
-            shutil.move(p, ap)
+            p = os.path.join(prompt_path, f"{file}.json").replace('/', '\\')
+            send2trash(p)
     for ID, content in data_global.items():
         temp = content.copy()
         temp['id'] = ID
@@ -93,7 +82,7 @@ def save(backUp=False):
     print("Saved")
 
 app = flask.Flask(__name__)
-host = "localhost"
+host = "127.0.0.1"
 port = 4321
 
 #主页面
@@ -199,7 +188,7 @@ def editCategory():
                     data_global[ID] = temp
                     del temp
                 # print(data_global.keys())
-                save(ENABLE_BACKUP)
+                save()
                 return f"已将{fromID}重命名为{name}"
             else: return f'不存在{fromID}'
         case "remove":
@@ -207,7 +196,7 @@ def editCategory():
             if ID in data_global.keys():
                 # 移除
                 del data_global[ID]
-                save(ENABLE_BACKUP)
+                save()
                 return f"{name}移除失败%bad" if ID in data_global.keys() else f"{name}已移除%good"
             else: return ""
 
@@ -244,7 +233,7 @@ def editChildCategory(category):
             except: pass
             # 移除原有内容
             # 添加内容/ 清除缓存
-            save(ENABLE_BACKUP)
+            save()
             return f"已将{fromName}重命名为{name}"
         case "remove":
             # 如果存在则移移除
@@ -261,7 +250,7 @@ def editChildCategory(category):
                     del data_global[category]["content"]['normal'][name]
                     del data_global[category]["content"]['r18'][name]
                 except: pass
-                save(ENABLE_BACKUP)
+                save()
                 # 验证
                 haskey = []
                 nn = data_global[category]["content"].get('normal')
@@ -320,7 +309,7 @@ def editPrompt():
                 del data_global[category]["content"][no][key][index]
                 if not key in data_global[category]["content"][n].keys():
                     data_global[category]["content"][n][key] = []
-                data_global[category]["content"][n][key].append(content)
+                data_global[category]["content"][n][key].insert(index, content)
             save()
             return f"已将{fromEn}-{fromZh}修改为{en}-{zh}%good"
             # return f"无效内容%bad"
@@ -345,7 +334,7 @@ def aa(d:dict, n):
     return t
 
 # 获取提示词
-@app.route(r'/prompt/')
+@app.route(r'/prompt')
 def getPrompt() -> str:
     category = request.args.get('category')
     key = request.args.get('key')
@@ -355,7 +344,7 @@ def getPrompt() -> str:
     items = data.items()
     result = []
     for key_local, item in items:
-        if key_local == "normal":      
+        if key_local == "normal":
             result += [aa(i, 0) for i in item.get(key)]
         elif key_local == 'r18' and isNSFW and key in item.keys():
             result += [aa(i, 1) for i in item.get(key)]
@@ -374,6 +363,177 @@ def getSearch(value) -> str:
     print(result)
     return json.dumps(result, ensure_ascii=False)
 
+###########################################
+# 作品处理
+###########################################
+
+work_path = os.path.join(base_path, "static/works")
+data_works = {}
+
+def load_works(path: str = work_path):
+    files = os.listdir(path)
+    for work in files:
+        p = os.path.join(path, work)
+        if not os.path.isfile(p):
+            file = os.path.join(p, "chara.json")
+            with open(file, 'r', encoding='utf-8') as f:
+                data_works[work] = json.loads(f.read())
+
+def get_work_names(path: str = work_path):
+    files = os.listdir(path)
+    return [os.path.splitext(file)[0] for file in files if os.path.isdir(os.path.join(path, file))]
+
+@app.route('/getWorks')
+def getWorks():
+    return [(i, data_works[i]['name']) for i in data_works.keys()]
+
+@app.route('/getCharas')
+def getCharas():
+    work = request.args.get("work")
+    data = data_works[work]["content"]
+    img_p = os.path.join(work_path, work, f"images")
+    imgs = {}
+    [imgs.update({img.split('.')[0]: img}) for img in os.listdir(img_p)]
+    result = []
+    for c in data:
+        ID, name = c["id"], c["name"]
+        p = ''
+        if ID in imgs.keys():
+            p = flask.url_for('static', filename=f"/works/{work}/images/{imgs[ID]}")
+        result.append((ID, name, p))
+    return result
+
+@app.route(r'/editWork')
+def editWork():
+    id = request.args.get("id")
+    name = request.args.get("name")
+    option_type = request.args.get("type")
+    match option_type:
+        case 'add':
+            if not id in data_works.keys():
+                data_works[id] = {
+                        "id": id,
+                        "name": name,
+                        "content": []
+                        }
+                p = os.path.join(work_path, f'{id}/images')
+                os.makedirs(p)
+                save_chara()
+                return f"已成功添加{name}%good"
+            else:
+                save_chara()
+                return f"{id}已存在%bad"
+        case "edit":
+            fromID = request.args.get("fromID")
+            if not fromID in data_works.keys():
+                return f"{fromID}不存在%bad"
+            temp = data_works.pop(fromID, dict())
+            temp["name"] = name
+            data_works[id] = temp
+            save_chara()
+            return f"{fromID}已重命名为{name}%good"
+        case "remove":
+            fromID = request.args.get("fromID")
+            if not fromID in data_works.keys():
+                return f"{fromID}不存在%bad"
+            data_works.pop(fromID, dict())
+            save_chara()
+            return f"已成功移除{name}%good"
+
+@app.route(r'/editChara', methods = ['POST'])
+def editChara():
+    work = request.args.get("work")
+    ID = request.args.get("id")
+    name = request.args.get("name")
+    option_type = request.args.get("type")
+    match option_type:
+        case 'add':
+            if ID in [i['id'] for i in data_works[work]['content']]:
+                return f"{ID}已存在%bad"
+            data_works[work]['content'].append({
+                "id": ID,
+                "name": name,
+            })
+            img = request.files.get("image")
+            if img:
+                img_type = img.filename.split(".")[-1]
+                p = os.path.join(work_path, work, "images")
+                os.makedirs(p, exist_ok=True)
+                img_p = os.path.join(work_path, work, f"images/{ID}.{img_type}")
+                img.save(img_p)
+            save_chara()
+            return f"已成功创建{name}%good"
+        case 'edit':
+            fromID = request.args.get('fromId')
+            fromName = request.args.get('fromName')
+            partten = {
+                "id": fromID,
+                "name": fromName,
+            }
+            try:
+                index = data_works[work]['content'].index(partten)
+            except: index = ''
+            if type(index) == int:
+                # 移除并复制
+                temp = data_works[work]['content'].pop(index)
+                temp["name"] = name
+                temp['id'] = ID
+                data_works[work]['content'].insert(index, temp)
+
+                img = request.files.get("image")
+                if img:
+                    img_p = os.path.join(work_path, work, f"images/")
+                    for file in os.listdir(img_p):
+                        p = os.path.join(img_p, file).replace('/', '\\')
+                        if os.path.isfile(p) and os.path.splitext(file)[0] == fromID:
+                            send2trash(p)
+                            break
+                    img_type = img.filename.split(".")[-1]
+                    p = os.path.join(work_path, work, "images")
+                    os.makedirs(p, exist_ok=True)
+                    img_p = os.path.join(work_path, work, f"images/{ID}.{img_type}")
+                    img.save(img_p)
+                save_chara()
+                return f"已修改{fromID}%good"
+            return f"{fromID}不存在%bad"
+        case 'remove':
+            fromID = request.args.get('fromId')
+            fromName = request.args.get('fromName')
+            partten = {
+                "id": fromID,
+                "name": fromName,
+            }
+            try:
+                index = data_works[work]['content'].index(partten)
+            except: index = None
+            if index:
+                # 移除
+                del data_works[work]['content'][index]
+                img_p = os.path.join(work_path, work, f"images/")
+                for img in os.listdir(img_p):
+                    p = os.path.join(img_p, img).replace('/', '\\')
+                    if os.path.isfile(p) and os.path.splitext(img)[0] == fromID:
+                        send2trash(p)
+                        break
+                save_chara()
+                return f"{fromID}已移除%good"
+
+def save_chara():
+    files = get_work_names()
+    keys = data_works.keys()
+    for file in files:
+        if not file in keys:
+            p = os.path.join(work_path, file).replace('/', '\\')
+            send2trash(p)
+    for ID, content in data_works.items():
+        temp = content.copy()
+        temp['id'] = ID
+        path = os.path.join(work_path, ID, "chara.json")
+        os.makedirs(os.path.join(work_path, ID, 'images'), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(json.dumps(temp, ensure_ascii=False))
+    print("Saved")
+
 AUTO_SAVE = RepeatingTimer(60, save)
 
 if __name__ == "__main__":
@@ -384,7 +544,7 @@ if __name__ == "__main__":
     # 自动保存
     # AUTO_SAVE.start()
     ENABLE_DEBUG = True
-    web.open(f"http://{host}:{port}")
+    # web.open(f"http://{host}:{port}")
     app.run(host, port, debug=ENABLE_DEBUG)
     # AUTO_SAVE.cancel()
     # save(1)

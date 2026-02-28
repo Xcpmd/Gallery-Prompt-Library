@@ -14,6 +14,10 @@
   font-display: swap;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 /* 全局样式重置与基础配置 */
 * {
   margin: 0;
@@ -178,9 +182,9 @@ body {
 }
 
 .message-box {
-  position: absolute;
+  position: fixed;
   right: 0;
-  z-index: 10;
+  z-index: 10000;
   width: 270px;
   max-height: calc(100vh-64px);
   pointer-events: none;
@@ -548,8 +552,10 @@ hr {
 /* 提示词内容容器 */
 .prompt-content {
   width: 100%;
-  display: flex;
+  column-count: 3;
+  column-gap: 20px;
   flex-wrap: wrap;
+  align-items: start;
   gap: 20px; /* 增大间距，更透气 */
   overflow-y: auto;
   padding: 0.5rem 0;
@@ -569,8 +575,10 @@ hr {
 
 /* 提示词单元格优化 */
 .prompt-ceil {
-  flex: 1 0 140px;
-  max-width: 280px;
+  break-inside: avoid;
+  width: 100%;
+  margin-bottom: 20px;
+  max-width: 204px;
   background-color: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(15px);
   border: 1px solid transparent;
@@ -644,6 +652,11 @@ hr {
 
 .ceil-edit-btn:active {
     transform: translateY(0) scale(0.9);
+}
+
+.chara-img img{
+  border-radius: 8px;
+  max-width: 100%;
 }
 
 /* 购物车容器优化 */
@@ -936,17 +949,22 @@ input:checked + .select-slider::before {
 }
 
 #copy-result {
-  min-height: 80px;
+  min-height: 60px;
   max-height: 512px;
   overflow-y: auto;
   border: 2px solid rgba(100, 100, 100, 0.4);
   padding: 0.5rem;
+  margin-bottom: 24px;
 }
 
 /* 响应式适配 - 小屏幕优化 */
 @media (max-width: 1200px) {
   .main {
     width: 90%;
+  }
+
+  .prompt-content {
+    column-count: 2;
   }
 }
 
@@ -970,5 +988,9 @@ input:checked + .select-slider::before {
 
   .prompt-ceil {
     max-width: 100%;
+  }
+
+  .prompt-content {
+    column-count: 3;
   }
 }

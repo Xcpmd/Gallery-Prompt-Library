@@ -1,167 +1,271 @@
 .pop-up {
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    opacity: 0;
-    background-color: rgba(100, 100, 100, 0.2);
-    z-index: 999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: 0.3s linear 50ms;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  opacity: 0;
+  background-color: rgba(100, 100, 100, 0.2);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s linear 50ms;
+  transition: width height 0s;
 }
 
 .pop-up.active {
-    opacity: 1;
-    pointer-events: all;
+  opacity: 1;
+  pointer-events: all;
+  backdrop-filter: blur(4px);
 }
 
 .pop-up-box {
-    min-width: 512px;
-    min-height: 256px;
-    padding: 1rem;
-    opacity: 0;
-    transform: translateY(80px) scale(0.8);
-    filter: blur(16px);
-    display: flex;
-    flex-direction: column;
+  min-width: 512px;
+  min-height: 256px;
+  padding: 1rem;
+  opacity: 0;
+  transform: translateY(80px) scale(0.8);
+  filter: blur(16px);
+  display: flex;
+  flex-direction: column;
 }
 
 .pop-up-box.fade-in {
-    opacity: 1;
-    filter: none;
-    transform: translateY(0) scale(1);
+  opacity: 1;
+  filter: none;
+  transform: translateY(0) scale(1);
 }
 
 .pop-up-bar {
-    height: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  height: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .pop-up-title {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 4px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
 }
 
 .icon {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2rem;
-    text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  text-align: center;
 }
 
 .icon.close-btn {
-    transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 
 .icon.close-btn:hover {
-    transform: rotate(0);
-    font-size: 1.3rem;
+  transform: rotate(0);
+  font-size: 1.3rem;
 }
 
 .icon.close-btn:active {
-    transform: scale(0.8);
+  transform: scale(0.8);
 }
 
 .pop-up-content {
-    padding: 1rem;
+  padding: 1rem;
 }
 
 .pop-up-input-info {
-    height: 0;
-    width: 0;
-    opacity: 0;
-    margin: 0;
-    padding: 0;
-    z-index: -9999;
-    visibility: hidden;
-    pointer-events: none;
+  height: 0;
+  width: 0;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  z-index: -9999;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .pop-up-submit {
-    position: relative;
-    margin-top: auto;
-    align-items: center;
-    /* justify-items: end; */
-    height: 80px;
+  position: relative;
+  margin-top: auto;
+  align-items: center;
+  /* justify-items: end; */
+  height: 80px;
 }
 
 .pop-up-submit-btn {
-    position: absolute;
-    height: 50px;
-    width: 90px;
-    margin-top: 15px;
-    border: none;
-    border-radius: 8px;
-    background-color: rgba(100, 148, 237);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    user-select: none;
-    box-shadow: 2px 2px 4px rgba(100, 100, 100, 0.2);
-    transition: 0.1s;
-    right: 8px;
-    bottom: 8px;
+  position: absolute;
+  height: 50px;
+  width: 90px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: rgba(100, 148, 237);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  box-shadow: 2px 2px 4px rgba(100, 100, 100, 0.2);
+  transition: 0.1s;
+  right: 8px;
+  bottom: 8px;
 }
 
 .pop-up-submit-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 4px 4px 6px rgba(100, 100, 100, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 6px rgba(100, 100, 100, 0.3);
 }
 
 .pop-up-submit-btn:active {
-    transform: translateY(-1px) scale(0.9);
-    box-shadow: 3px 3px 5px rgba(100, 100, 100, 0.25);
+  transform: translateY(-1px) scale(0.9);
+  box-shadow: 3px 3px 5px rgba(100, 100, 100, 0.25);
 }
 
 .pop-up-remove-btn {
-    position: absolute;
-    margin: auto 0;
-    height: 40px; 
-    width: 40px;
-    left: 8px;
-    bottom: 8px;
+  position: absolute;
+  margin: auto 0;
+  height: 40px;
+  width: 40px;
+  left: 8px;
+  bottom: 8px;
 }
 
 /* 模板内容 */
 
 .pop-up-text-box {
-    width: auto;
-    min-height: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    margin: 8px;
-    gap: 4px;
+  width: auto;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 8px;
+  gap: 4px;
 }
 
 .pop-up-input-box {
-    border: 2px solid rgba(200, 200, 200, 0.8);
-    outline: none;
-    min-height: 40px;
-    border-radius: 8px;
-    padding: 0.5rem;
-    transition: 0.2s;
-    background-color: white;
+  border: 2px solid rgba(200, 200, 200, 0.8);
+  outline: none;
+  min-height: 40px;
+  border-radius: 8px;
+  padding: 0.5rem;
+  transition: 0.2s;
+  background-color: white;
 }
 
 .pop-up-input-box:focus {
-    border: 3px solid rgba(150, 150, 150, 0.8);
+  border: 3px solid rgba(150, 150, 150, 0.8);
 }
 
 .pop-up-checkbox-box {
-    width: auto;
-    min-height: 60px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: start;
-    margin: 8px;
-    gap: 4px;
+  width: auto;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: start;
+  margin: 8px;
+  gap: 4px;
+}
+
+.pop-up-file-upload {
+  width: calc(100% - 8px);
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  margin: 8px;
+  gap: 4px;
+}
+
+.file-upload {
+  width: calc(100% - 8px);
+  min-height: 100px;
+  border-radius: 12px;
+  margin-top: 1rem;
+  border: 4px solid rgba(100, 237, 143, 0.8);
+  --color: rgba(100, 237, 143, 0.6);
+  --line-width: 2px;
+  background-size: 100% 100px;
+  background-color: rgba(100, 100, 100, 0);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color),
+    var(--color) var(--line-width),
+    transparent 1px,
+    transparent 17.677669529px
+  );
+  animation: patternScroll 8s linear infinite;
+  transition: 0.5s;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.file-upload.drag {
+  --line-width: 4px;
+  border-width: 6px;
+  background-color: rgba(60, 122, 74, 0.1);
+}
+
+@keyframes patternScroll {
+  0% {
+    background-position: 0 50px;
+  }
+  100% {
+    background-position: 0 150px;
+  }
+}
+
+.file-upload-input {
+  margin-top: 1rem;
+  position: absolute;
+  width: calc(100% - 46px);
+  min-height: 100px;
+  opacity: 0;
+  z-index: 10001;
+}
+
+.file-upload::file-selector-button {
+  opacity: 0;
+}
+
+#file-preview {
+  max-height: 0px;
+  max-width: 128px;
+  border-radius: 4px;
+  transition: 0.3s;
+  pointer-events: none;
+}
+
+.btn-posi {
+  position: absolute;
+  width: calc(100% - 46px);
+  min-height: 108px;
+  margin-top: 8px
+}
+
+#file-preview.fade-in {
+  max-height: 128px;
+}
+
+.file-rm-btn {
+  position: absolute;
+  right: 16px;
+  top: 22px;
+  opacity: 0;
+  pointer-events: all;
+  z-index: 10002;
+}
+
+.btn-posi:hover .file-rm-btn {
+  opacity: 1;
+}
+
+.hidden {
+  display: none;
+  visibility: hidden;
 }
