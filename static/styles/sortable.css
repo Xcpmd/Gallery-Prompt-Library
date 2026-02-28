@@ -1,0 +1,11 @@
+.sortable-ghost {
+  opacity: 0;
+  transition: 0;
+}
+
+.sortable-drag {
+  opacity: 1 !important;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  /* cursor: grabbing; */
+transition: 0.3s;
+}

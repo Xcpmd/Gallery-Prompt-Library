@@ -60,36 +60,43 @@ Gallery Prompt 是一个轻量级的提示词（Prompt）管理工具，专为 A
 
 ```txt
 Gallery-Prompt-Library
-├── /static
+├── /statis
 │   ├── /scripts
-│   │   └── main.js           # 前端主逻辑
+│   │   ├── main.js                 # 前端主逻辑
+│   │   └── Sortable.min.js         # Sortable库
 │   ├── /styles
-│   │   ├── ai.css            # 主样式表
-│   │   ├── edit.css          # 弹窗编辑样式
-│   │   └── all.min.css       # FontAwesome 图标库
-│   ├── /webfonts             # 字体文件（含 FontAwesome 所需字体）
-│   └── /images               # 背景图等静态资源
-├── /templates
-│   └── index.html            # 主页面模板
-├── /public                   # 其他公共资源
-├── /prompts
-│   ├── /backUp               # 自动备份目录（启用 --backup 后生成）
-│   └── *.json                # 提示词数据文件（默认存储）
-├── app.py                    # Flask 后端应用
-├── search.py                 # 搜索模块 :ai
+│   │   ├── ai.css                  # 主样式表
+│   │   ├── edit.css                # 弹窗编辑样式
+│   │   ├── all.min.css             # FontAwesome 图标库
+│   │   └── Sortable.css
+│   ├── /webfonts                   # 字体文件（含 FontAwesome 所需字体）
+│   ├── /images                     # 背景图等静态资源
+│   └── /works                      # 角色tag保存目录
+│       └── /{work}
+│           ├── /images             # 图片
+│           │     └──{ID}.png
+│           └── chara.json          # 角色tag储存文件
+├── /templates                      
+│   └── index.html                  # 主页面模板
+├── /public                         # 杂项
+├── /prompts                        # 提示词数据文件
+│   └── *.json 
+├── app.py                          # Flask 后端
+├── search.py                       # 搜索模块 :ai
 ├── requirements.txt
 ├── README.md
 └── ...
 ```
 
-## 提示词来源: 
-   - [prompt-library](https://github.com/gaowanliang/prompt-library)
+## 提示词来源
+
+- [prompt-library](https://github.com/gaowanliang/prompt-library)
 
 ## 注意事项
 
 - 本项目为个人学习作品，作者为高二学生，前端水平有限，欢迎友好指教。
 - 除 `search.py` 及个别算法外，其余代码均为手动编写，未使用 AI 生成。
-- 当前版本**未做输入验证**，请勿使用 / : \* ? " < > | 等字符作为分类id
+- 当前版本**未做输入验证**，请勿使用 / : \ * ? " < > | 等字符作为分类id
 
 ---
 [Copyright](./LICENSE)  (c) 2026 Xcpmd
