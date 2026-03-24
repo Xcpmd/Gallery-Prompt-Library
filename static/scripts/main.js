@@ -492,6 +492,31 @@ async function addNegativeCart(card, isChara = false) {
   }
 }
 
+async function copyCallBack(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(content);
+    createMessage("已复制到剪切板", 3, "good");
+  }else{
+    const element = document.createElement('textarea');
+    element.value = text;
+    element.style.position = 'fixed';
+    element.style.opacity = '0';
+    element.style.pointerEvents = 'none';
+  
+    document.body.appendChild(element);
+    element.select();
+    element.setSelectionRange(0, text.length);
+    
+    try {
+      document.execCommand('copy');
+      createMessage("已复制到剪切板", 3, "good");
+    } catch(err) {
+      createMessage('!请前往 复制结果 手动复制', 3,'bad');
+    }
+    document.body.removeChild(element);
+  }
+}
+
 //复制
 function copy(btn) {
   let element =
@@ -512,8 +537,13 @@ function copy(btn) {
   let content = underline ? result.replace(/_/g, " ") : result;
 
   if (result) {
-    navigator.clipboard.writeText(content);
-    createMessage("已复制到剪切板", 3, "good");
+    copyCallBack(content);
+    // if (navigator.clipboard) {
+    //   navigator.clipboard.writeText(content);
+    //   createMessage("已复制到剪切板", 3, "good");
+    // }else{
+    //   createMessage('!请前往 复制结果 手动复制', 3,'bad')
+    // }
     showerContent.classList.remove("active");
     setTimeout(() => {
       resultShower.innerText = content;
@@ -1627,6 +1657,25 @@ async function init() {
   observerPositive.observe(cartPositive, observerOption);
   observerNeagtive.observe(cartNegative, observerOption);
 
+  if (!localStorage.getItem('copySelect')) {
+    localStorage.setItem('copySelect', {
+      underlineInput: false,
+      escapeInput: false
+    })
+  }
+
+  document.getElementById('underline-input').addEventListener('change', (self) => {
+    let n = localStorage.getItem('copySelect');
+    n.underlineInput = self.checked;
+    localStorage.setItem('copySelect', n)
+  })
+
+  document.getElementById('escape-input').addEventListener('change', (self) => {
+    let n = localStorage.getItem('copySelect');
+    n.escapeInput = self.checked;
+    localStorage.setItem('copySelect', n)
+  })
+
   const input = document.getElementById("search-box");
 
   input.addEventListener(
@@ -1670,4 +1719,8 @@ window.addEventListener("load", () => {
   Array.from(document.getElementById("cart-positive").children).map((card) => {
     card.classList.add("active");
   });
+
+  let selecter = localStorage.getItem('copySelect');
+  document.getElementById('underline-input').checked = selecter.underlineInput;
+  document.getElementById('escape-input').checked = selecter.escapeInput;
 });

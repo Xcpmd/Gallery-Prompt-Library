@@ -48,7 +48,7 @@
                     <div class="category-bar">
                         <div class="card-title">
                             <i class="fa-solid fa-folder-closed"></i>
-                            <h4>分类</h4>
+                            <h4 style="user-select: none;">分类</h4>
                         </div>
                         <div class="add-btn" onclick="addCategory()" title="点击添加分类">
                             <i class="fa-solid fa-plus"></i>
@@ -63,13 +63,13 @@
                     <div class="category-bar">
                         <div class="card-title">
                             <i class="fa-solid fa-tags"></i>
-                            <h4>提示词</h4>
+                            <h4 style="user-select: none;">提示词</h4>
                         </div>
                     </div>
                     <hr>
                     <div class="prompt-option-bar">
                         <div class="title">
-                            <p id="prompt-load-count" style="opacity: 0.5;">已加载0个prompt</p>
+                            <p id="prompt-load-count" style="user-select: none; opacity: 0.5;">已加载0个prompt</p>
                         </div>
                         <div id="prompt-add-btn" class="add-btn" onclick="addPrompt()">
                             <i class="fa-solid fa-plus"></i>
@@ -88,7 +88,7 @@
                     <div class="category-bar">
                         <div class="card-title">
                             <i class="fa-solid fa-cart-arrow-down"></i>
-                            <h4>购物车</h4>
+                            <h4 style="user-select: none;">购物车</h4>
                         </div>
                     </div>
                     <hr>
@@ -96,7 +96,7 @@
                     <div class="cart-box" style="margin-top: 1rem;">
                         <div>
                             <div class="cart-bar">
-                                <p>正面</p>
+                                <p style="user-select: none;">正面</p>
                                 <div style="display: flex;justify-content: space-between">
                                     <div class="copy-btn positive" onclick="copy(this)" title="点击复制内容">
                                         <i class="fa-solid fa-copy"></i>
@@ -111,7 +111,7 @@
 
                         <div>
                             <div class="cart-bar">
-                                <p>负面</p>
+                                <p style="user-select: none;">负面</p>
                                 <div style="display: flex;justify-content: space-between">
                                     <div class="copy-btn negative" onclick="copy(this)" title="点击复制内容">
                                         <i class="fa-solid fa-copy"></i>
@@ -129,7 +129,7 @@
                         <div id="underline-option" class="copy-option" title="将 '_' 转换为 空格">
                             <div class="copy-option-title">
                                 <i class="fa-solid fa-terminal"></i>
-                                <p style="margin-left: 4px; word-wrap:break-word">转换下划线</p>
+                                <p style="user-select: none; margin-left: 4px; word-wrap:break-word">转换下划线</p>
                             </div>
                            <label class="select-box">
                                 <input type="checkbox" id="underline-input" name="underline">
@@ -140,7 +140,7 @@
                         <div id="escape-option" class="copy-option" title="在括号前添加 '\'">
                             <div class="copy-option-title">
                                 <i class="fa-solid fa-code"></i>
-                                <p style="margin-left: 4px; word-wrap:break-word;">括号转义</p>
+                                <p style="user-select: none; margin-left: 4px; word-wrap:break-word;">括号转义</p>
                             </div>
                             <label class="select-box">
                                 <input type="checkbox" id="escape-input" name="escape">
@@ -154,7 +154,7 @@
                             <div class="copy-result-icon">
                                 <i class="fa-solid fa-square-poll-horizontal"></i>
                             </div>
-                            <p>复制结果:</p>
+                            <p style="user-select: none;">复制结果:</p>
                         </div>
                         <div class="copy-result">
                             <p id="copy-result" class="cart"></p>

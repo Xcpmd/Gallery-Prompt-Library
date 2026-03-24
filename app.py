@@ -1,5 +1,5 @@
 import flask
-from flask import render_template, request
+from flask import render_template, request, send_from_directory, make_response
 import json, os
 from search import search
 from utils import time
@@ -82,7 +82,7 @@ def save():
     print("Saved")
 
 app = flask.Flask(__name__)
-host = "127.0.0.1"
+host = "0.0.0.0"
 port = 4321
 
 #主页面
@@ -102,6 +102,13 @@ def getStatus():
         }
     }
     return data
+
+# api: 字体
+@app.route(r'/font/<font>')
+def getFont(font):
+    response = make_response(send_from_directory('static/webfonts', font))
+    response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+    return response
 
 # api: 获取分类名
 @app.route(r'/getCategories')
@@ -534,7 +541,11 @@ def save_chara():
             f.write(json.dumps(temp, ensure_ascii=False))
     print("Saved")
 
-AUTO_SAVE = RepeatingTimer(60, save)
+def auto_save_func():
+    save()
+    save_chara()
+
+AUTO_SAVE = RepeatingTimer(60, auto_save_func)
 
 if __name__ == "__main__":
     # 加载提示词
@@ -542,9 +553,8 @@ if __name__ == "__main__":
     update_prompt()
 
     # 自动保存
-    # AUTO_SAVE.start()
-    ENABLE_DEBUG = True
+    AUTO_SAVE.start()
     # web.open(f"http://{host}:{port}")
     app.run(host, port, debug=ENABLE_DEBUG)
-    # AUTO_SAVE.cancel()
-    # save(1)
+    save()
+    save_chara()
